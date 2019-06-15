@@ -4,12 +4,16 @@ import time
 import cv2
 from tornado.options import define
 import tornado.web
-
 from src import utils
+import numpy as np
+
+
+# 模型路径
+model_path = './final_models/mcnn_shtechA_660.h5'
 
 class MainHandler(tornado.web.RequestHandler):
 
-    def __init__(self):
+    def initialize(self):
         self.net = utils.load_model()
 
     # get方法
@@ -23,6 +27,7 @@ class MainHandler(tornado.web.RequestHandler):
         需要用decode("utf8")转为字符串
         再用json.loads()转为json对象
         '''  
+
         # 指定摄像头id
         post_id = self.get_argument("id")
         # 是否初始化该摄像头
@@ -56,11 +61,12 @@ class MainHandler(tornado.web.RequestHandler):
                 t_start = time.time()
 
                 # 处理图片
-                img = main.trainsform_img(image)
-                density_map = net(img)
+                img = utils.trainsform_img(image)
+                density_map = self.net(img)
                 density_map = density_map.data.cpu().numpy()[0][0]
                 h, w = density_map.shape
-                box_centers = list(zip(density_map.nonzero()[1], density_map.nonzero()[0]))
+                box_centers = list(zip(density_map.nonzero()[1], density_map.nonzero()[0].astype(int)))
+                box_centers = [(int(item[0]), int(item[1])) for item in box_centers]
                 count_people = len(box_centers)
 
                 t_end = time.time()
