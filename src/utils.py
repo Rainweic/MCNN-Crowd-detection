@@ -7,6 +7,7 @@ from .http_server import MainHandler
 import tornado.web
 import tornado.ioloop
 from . import network
+from .crowd_count import CrowdCounter
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
