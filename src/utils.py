@@ -3,14 +3,9 @@ import numpy as np
 import os
 import torch
 from pyheatmap.heatmap import HeatMap
-import matplotlib.pyplot as plt
-from colour import Color
-from scipy.spatial import distance
-import time
 from .http_server import MainHandler
 import tornado.web
 import tornado.ioloop
-from .crowd_count import CrowdCounter
 from . import network
 
 torch.backends.cudnn.enabled = True
