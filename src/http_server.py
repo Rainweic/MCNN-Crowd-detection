@@ -59,14 +59,17 @@ class MainHandler(tornado.web.RequestHandler):
                 img = main.trainsform_img(image)
                 density_map = net(img)
                 density_map = density_map.data.cpu().numpy()[0][0]
+                h, w = density_map.shape
                 box_centers = list(zip(density_map.nonzero()[1], density_map.nonzero()[0]))
                 count_people = len(box_centers)
 
                 t_end = time.time()
 
                 result = {
-                    "count_people": count_people,
-                    "box_centers": box_centers
+                    "count_people": count_people,   # 人群数量估计
+                    "box_centers": box_centers,     # 绘制热力图所用坐标
+                    "wide_heatmap": w,              # 热力图大小
+                    "height_heatmap": h
                 }
 
                 print("http：处理图片时间{}".format(t_end-t_start))

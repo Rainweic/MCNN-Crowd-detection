@@ -19,6 +19,9 @@ torch.backends.cudnn.benchmark = True
 model_path = './final_models/mcnn_shtechA_660.h5'
 
 def load_model():
+    '''
+    加载模型
+    '''
     net = CrowdCounter()
     trained_model = os.path.join(model_path)
     network.load_net(trained_model, net)
@@ -27,6 +30,9 @@ def load_model():
     return net
 
 def trainsform_img(img):
+    '''
+    transform图片
+    '''
     h, w = img.shape[0], img.shape[1]
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img = cv2.resize(img, (w, h))
@@ -35,6 +41,9 @@ def trainsform_img(img):
     return img
 
 def predict_img(args):
+    '''
+    对图片进行预测
+    '''
     net = load_model()
 
     img_with_c3 = cv2.imread(args.img_path)
@@ -47,17 +56,20 @@ def predict_img(args):
 
 
 def deal_density_map(args, img_with_c3, density_map):
+    '''
+    处理热力图 显示、保存等功能
+    '''
     if args.show_heatmap:
         display_heatmap(img_with_c3, density_map)
     if args.is_save:
         pass
 
-def density_heatmap(box_centers):
+def density_heatmap(width, height, box_centers, r=4):
     '''
     制作热力图
     '''
-    hm = HeatMap(box_centers)
-    heatmap_img = hm.heatmap()
+    hm = HeatMap(box_centers, width=width, height=height)
+    heatmap_img = hm.heatmap(r=r)
     # 将PIL转opencv
     heatmap_img = cv2.cvtColor(np.asarray(heatmap_img),cv2.COLOR_RGB2BGR)
     return heatmap_img
@@ -71,7 +83,7 @@ def display_heatmap(img_with_c3, density_map):
     density_map = density_map[0][0]
     
     box_centers = list(zip(density_map.nonzero()[1], density_map.nonzero()[0]))
-    heat_map = density_heatmap(box_centers)
+    heat_map = density_heatmap(density_map.shape[1], density_map.shape[0], box_centers)
  
     # density_map的大小与圆图不一样 被缩小 故生成的heat_map要缩放到原来大小
     heat_map = cv2.resize(heat_map, (img_with_c3.shape[1], img_with_c3.shape[0]))
@@ -86,7 +98,7 @@ def display_heatmap(img_with_c3, density_map):
 def run_http(port):
     settings = {'debug' : True}
     app = tornado.web.Application([
-        (r'/crow', MainHandler)
+        (r'/crowd', MainHandler)
     ], **settings)
     http_server = tornado.httpserver.HTTPServer(app)
     print("port: {}".format(port))
