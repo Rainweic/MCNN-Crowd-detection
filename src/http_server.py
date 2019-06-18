@@ -16,6 +16,16 @@ class MainHandler(tornado.web.RequestHandler):
     def initialize(self):
         self.net = utils.load_model()
 
+    def set_default_headers(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with,content-type")
+        self.set_header("Access-Control-Allow-Methods", "POST, GET, OPTIONS")
+        self.set_header("Access-Control-Max-Age", "3600");
+   	
+    #定义一个响应OPTIONS 请求，不用作任务处理
+    def options(self):
+        pass
+    
     # get方法
     def get(self):
         self.write("运行正常")
@@ -49,15 +59,15 @@ class MainHandler(tornado.web.RequestHandler):
         print("id", post_id, "is_close", is_close)
         print("is_init", is_init)
 
-        if is_init == "true":
+        if is_init == "True":
             # 初始化摄像头查询
             pass
 
-        elif is_init == "false":
-            if is_close == 'true':
+        elif is_init == "False":
+            if is_close == 'True':
                 # 关闭摄像头查询
                 pass
-            elif is_close == "false":
+            elif is_close == "False":
                 t_start = time.time()
 
                 # 处理图片
