@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 import torch
+import time
 from pyheatmap.heatmap import HeatMap
 from .http_server import MainHandler
 import tornado.web
@@ -50,6 +51,44 @@ def predict_img(args):
 
     deal_density_map(args, img_with_c3, density_map)
 
+def predict_video(args, FPS=60):
+    '''
+    对视频进行预测
+    '''
+    net = load_model()
+
+    cap = cv2.VideoCapture(args.video_path)
+    w, h = int(cap.get(3)),int(cap.get(4))
+    if args.show_original:
+        h *= 2
+    save_cap = cv2.VideoWriter(args.save_name, cv2.VideoWriter_fourcc('I', '4', '2', '0'), FPS, (w,h))
+    while(cap.isOpened()):
+        start = time.time()
+        ret, frame = cap.read()
+        image = trainsform_img(frame)
+        density_map = net(image)
+        density_map = density_map.data.cpu().numpy()[0][0]
+        
+        box_centers = list(zip(density_map.nonzero()[1], density_map.nonzero()[0]))
+        heatmap_img = density_heatmap(density_map.shape[1], density_map.shape[0], box_centers)
+        heatmap_img = cv2.resize(heatmap_img, (frame.shape[1], frame.shape[0]))
+        image_with_heatmap = cv2.addWeighted(frame, 0.7, heatmap_img, 0.3, 0)
+        end = time.time()
+        print("处理一个帧所需时间(不计网络传输) {}".format(end-start))	
+
+        if args.show_original:
+            image_with_heatmap = np.vstack((frame, image_with_heatmap))
+
+        if args.show_heatmap:
+            cv2.imshow("video frame", image_with_heatmap)
+            cv2.waitKey(1)
+
+        save_cap.write(image_with_heatmap)
+
+    cap.release()
+    save_cap.release()
+    cv2.destroyAllWindows()
+        
 
 def deal_density_map(args, img_with_c3, density_map):
     '''
@@ -79,6 +118,8 @@ def display_heatmap(img_with_c3, density_map):
     density_map = density_map[0][0]
     
     box_centers = list(zip(density_map.nonzero()[1], density_map.nonzero()[0]))
+    # print(density_map.shape)
+    # print(box_centers)
     heat_map = density_heatmap(density_map.shape[1], density_map.shape[0], box_centers)
  
     # density_map的大小与圆图不一样 被缩小 故生成的heat_map要缩放到原来大小

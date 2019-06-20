@@ -12,10 +12,10 @@ def getargs():
         help = "图片路径"
     ),
     parser.add_argument(
-        "--save_path",
+        "--save_name",
         type = str,
         default = "./",
-        help = "保存路径(未开发)"
+        help = "保存文件名称(带路径)"
     ),
     parser.add_argument(
         "--show_heatmap",
@@ -40,6 +40,17 @@ def getargs():
         type = bool,
         default = False,
         help = "运行http服务接受图片"
+    ),
+    parser.add_argument(
+        "--video_path",
+        type = str,
+        help = "测试视频路径"
+    ),
+    parser.add_argument(
+        "--show_original",
+        type = bool,
+        default = False,
+        help = "生成的demo视频中是否显示原视频"
     )
     args = parser.parse_args()
 
@@ -52,6 +63,8 @@ def main():
         utils.run_http(args.port)
     elif args.show_heatmap:
         utils.predict_img(args)
+    elif args.video_path:
+        utils.predict_video(args)
     else:
         print("没反应? python3 main.py -h 试试")
 
