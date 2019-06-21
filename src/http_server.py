@@ -41,9 +41,9 @@ class MainHandler(tornado.web.RequestHandler):
         # 指定摄像头id
         post_id = self.get_argument("id")
         # 是否初始化该摄像头
-        is_init = self.get_argument("init")
+        is_init = bool(self.get_argument("init"))
         # 是否关闭摄像头
-        is_close = self.get_argument("close")
+        is_close = bool(self.get_argument("close"))
         # 从json中获取数据                 
         json_data_byte = self.request.body
         json_data_str = json_data_byte.decode('utf8')
@@ -59,15 +59,15 @@ class MainHandler(tornado.web.RequestHandler):
         print("id", post_id, "is_close", is_close)
         print("is_init", is_init)
 
-        if is_init == "True":
+        if is_init is True:
             # 初始化摄像头查询
             pass
 
-        elif is_init == "False":
-            if is_close == 'True':
+        elif is_init is False:
+            if is_close is True:
                 # 关闭摄像头查询
                 pass
-            elif is_close == "False":
+            elif is_close is False:
                 t_start = time.time()
 
                 # 处理图片
