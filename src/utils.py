@@ -51,7 +51,7 @@ def predict_img(args):
 
     deal_density_map(args, img_with_c3, density_map)
 
-def predict_video(args, FPS=60):
+def predict_video(args, FPS=30):
     '''
     对视频进行预测
     '''
@@ -61,7 +61,8 @@ def predict_video(args, FPS=60):
     w, h = int(cap.get(3)),int(cap.get(4))
     if args.show_original:
         h *= 2
-    save_cap = cv2.VideoWriter(args.save_name, cv2.VideoWriter_fourcc('I', '4', '2', '0'), FPS, (w,h))
+    #save_cap = cv2.VideoWriter(args.save_name, cv2.VideoWriter_fourcc('I', '4', '2', '0'), FPS, (w,h))
+    save_cap = cv2.VideoWriter(args.save_name, cv2.VideoWriter_fourcc('M', 'P', '4', 'V'), FPS, (w,h))
     while(cap.isOpened()):
         start = time.time()
         ret, frame = cap.read()

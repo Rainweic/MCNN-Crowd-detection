@@ -61,7 +61,7 @@ def main():
     
     if args.run_http:
         utils.run_http(args.port)
-    elif args.show_heatmap:
+    elif args.show_heatmap and not args.video_path:
         utils.predict_img(args)
     elif args.video_path:
         utils.predict_video(args)
